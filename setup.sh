@@ -7,4 +7,5 @@ source venv/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 
-echo "Setup complete. Activate the virtual environment using: source venv/bin/activate"
+source venv/bin/activate
+echo "Setup complete."

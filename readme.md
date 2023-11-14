@@ -12,4 +12,3 @@ Run the setup script to create a virtual environment and install dependencies:
 ```bash
 chmod +x setup.sh
 ./setup.sh
-source venv/bin/activate

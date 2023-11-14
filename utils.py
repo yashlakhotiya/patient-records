@@ -53,7 +53,7 @@ def get_final_data_for_excel(pdf_files):
         patient_info, result_summary = process_pdf(pdf_file)
         # Append the patient information to the DataFrame
         patient_info_list.append(patient_info)
-        result_summary_list.append(result_summary)
+        result_summary_list.extend(result_summary)
     return patient_info_list, result_summary_list
 
 
@@ -68,10 +68,9 @@ def save_to_excel(output_excel_file, patient_info_list, result_summary_list):
         df_patient_details = pd.DataFrame(patient_info_list, columns=patient_details_columns)
         df_patient_details.to_excel(writer, sheet_name="PatientRecords")
 
-        result_summary_columns = ["VariantName", "Description", "VAF"]
-        for result_summary in result_summary_list:
-            df_result_summary = pd.DataFrame(result_summary.get("VariantDetails"), columns=result_summary_columns)
-            df_result_summary.to_excel(writer, sheet_name=result_summary.get("SpecimenId"))
+        result_summary_columns = ["SpecimenId", "VariantName", "Description", "VAF"]
+        df_result_summary = pd.DataFrame(result_summary_list, columns=result_summary_columns)
+        df_result_summary.to_excel(writer, sheet_name="ResultSummary")
 
     print(f"Patient details written to {output_excel_file}")
 
@@ -94,19 +93,16 @@ def extract_result_summary(text):
         cleaned_match = tuple(part.replace('\n', '') for part in i)
         result_summary.append(cleaned_match)
     summary_list = []
+    specimen_id = get_specimen_id(text)
     for summary in result_summary:
-        summary = {
+        summary_row = {
+            "SpecimenId": specimen_id,
             "VariantName": summary[0],
             "Description": summary[1],
             "VAF": summary[2]
         }
-        summary_list.append(summary)
-    specimen_id = get_specimen_id(text)
-    summary_parent = {
-        "SpecimenId": specimen_id,
-        "VariantDetails": summary_list
-    }
-    return summary_parent
+        summary_list.append(summary_row)
+    return summary_list
 
 
 def get_match(text, pattern):
@@ -115,12 +111,12 @@ def get_match(text, pattern):
 
 
 def get_specimen_id(text):
-    patten = re.compile(r'Specimen ID:\s+([^\n]+)\s+')
+    patten = re.compile(r'Specimen\s*ID:\s+([^\n]+)\s+')
     return get_match(text, patten)
 
 
 def get_patient_id(text):
-    patten = re.compile(r'Patient ID:\s+(.*?)\s+')
+    patten = re.compile(r'Patient\s*ID:\s+(.*?)\s+')
     return get_match(text, patten)
 
 
@@ -140,32 +136,32 @@ def get_sex(text):
 
 
 def get_date_collected(text):
-    pattern = re.compile(r'Date Collected:\s+(.*?)\s+')
+    pattern = re.compile(r'Date\s*Collected:\s+(.*?)\s+')
     return get_match(text, pattern)
 
 
 def get_date_reported(text):
-    pattern = re.compile(r'Date Reported:\s+(.*?)\s+')
+    pattern = re.compile(r'Date\s*Reported:\s+(.*?)\s+')
     return get_match(text, pattern)
 
 
 def get_surg_path(text):
-    pattern = re.compile(r'Surg-Path #:\s+(.*?)\s+')
+    pattern = re.compile(r'Surg.*Path #:\s+(.*?)\s+')
     return get_match(text, pattern)
 
 
 def get_specimen_source(text):
-    pattern = re.compile(r'Specimen Source:\s+([^\n]+)\s+')
+    pattern = re.compile(r'Specimen\s*Source:\s+([^\n]+)\s+')
     return get_match(text, pattern)
 
 
 def get_ordering_physician(text):
-    pattern = re.compile(r'Ordering Physician:\s+(.*?)\s*Date Collected:')
+    pattern = re.compile(r'Ordering\s*Physician:\s+(.*?)\s*Date\s*Collected:')
     return get_match(text, pattern)
 
 
 def get_date_received(text):
-    pattern = re.compile(r'Date Received:\s+(.*?)\s+')
+    pattern = re.compile(r'Date\s*Received:\s+(.*?)\s+')
     return get_match(text, pattern)
 
 

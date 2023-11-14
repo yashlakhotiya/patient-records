@@ -4,7 +4,7 @@ from utils import *
 
 
 def main():
-    pdf_directory = os.path.expanduser('~/Downloads/new')  # Expand the tilde character
+    pdf_directory = os.path.expanduser('~/Downloads/patient-records')  # Expand the tilde character
 
     # Get all PDF files in the specified directory
     pdf_files = [file for file in os.listdir(pdf_directory) if file.endswith('.pdf')]
