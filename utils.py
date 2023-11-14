@@ -6,6 +6,7 @@ import pandas as pd
 
 def extract_patient_details(text):
     patient_name = get_patient_name(text)
+    aml_ngs_panel = get_aml_ngs_panel(text)
     patient_id = get_patient_id(text)
     dob = get_dob(text)
     sex = get_sex(text)
@@ -21,6 +22,7 @@ def extract_patient_details(text):
     # Creating a dictionary to store extracted details
     patient_details = {
         'Patient Name': patient_name,
+        'AML NGS Panel': aml_ngs_panel,
         'Patient ID': patient_id,
         'Date of Birth': dob,
         'Sex': sex,
@@ -60,15 +62,15 @@ def get_final_data_for_excel(pdf_files):
 def save_to_excel(output_excel_file, patient_info_list, result_summary_list):
     with pd.ExcelWriter(output_excel_file, engine='xlsxwriter') as writer:
         # Create DataFrame from the list
-        patient_details_columns = ['Patient Name', 'Patient ID', 'Date of Birth', 'Sex', 'Date Collected',
-                                   'Date Reported',
+        patient_details_columns = ['Patient Name', 'AML NGS Panel', 'Patient ID', 'Date of Birth', 'Sex',
+                                   'Date Collected', 'Date Reported',
                                    'Surg-Path #', 'Specimen ID', 'Specimen Source', 'Ordering Physician',
                                    'Date Received',
                                    'Facility']
         df_patient_details = pd.DataFrame(patient_info_list, columns=patient_details_columns)
         df_patient_details.to_excel(writer, sheet_name="PatientRecords")
 
-        result_summary_columns = ["SpecimenId", "VariantName", "Description", "VAF"]
+        result_summary_columns = ["Specimen Id", "Date Collected", "Date Reported", "Variant Name", "Description", "VAF"]
         df_result_summary = pd.DataFrame(result_summary_list, columns=result_summary_columns)
         df_result_summary.to_excel(writer, sheet_name="ResultSummary")
 
@@ -94,10 +96,14 @@ def extract_result_summary(text):
         result_summary.append(cleaned_match)
     summary_list = []
     specimen_id = get_specimen_id(text)
+    date_collected = get_date_collected(text)
+    date_reported = get_date_reported(text)
     for summary in result_summary:
         summary_row = {
-            "SpecimenId": specimen_id,
-            "VariantName": summary[0],
+            "Specimen Id": specimen_id,
+            "Date Collected": date_collected,
+            "Date Reported": date_reported,
+            "Variant Name": summary[0],
             "Description": summary[1],
             "VAF": summary[2]
         }
@@ -114,6 +120,16 @@ def get_specimen_id(text):
     patten = re.compile(r'Specimen\s*ID:\s+([^\n]+)\s+')
     return get_match(text, patten)
 
+
+def get_aml_ngs_panel(text):
+    pattern1 = re.compile(r'(Chronic\s*Myeloid\s*Neoplasm\s*Next\s*Generation\s*Sequencing\s*Panel)')
+    pattern2 = re.compile(r'(Acute\s*Leukemia\s*Next\s*Generation\s*Sequencing\s*Panel)')
+    pattern1_match = get_match(text, pattern1)
+    if pattern1_match:
+        return "No"
+    pattern2_match = get_match(text, pattern2)
+    if pattern2_match:
+        return "Yes"
 
 def get_patient_id(text):
     patten = re.compile(r'Patient\s*ID:\s+(.*?)\s+')

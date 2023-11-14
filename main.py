@@ -4,10 +4,10 @@ from utils import *
 
 
 def main():
-    pdf_directory = os.path.expanduser('~/Downloads/patient-records')  # Expand the tilde character
+    pdf_directory = os.path.expanduser('~/Documents/patient-records/pdf')  # Expand the tilde character
 
     # Get all PDF files in the specified directory
-    pdf_files = [file for file in os.listdir(pdf_directory) if file.endswith('.pdf')]
+    pdf_files = [os.path.join(pdf_directory, file) for file in os.listdir(pdf_directory) if file.endswith('.pdf')]
 
     if not pdf_files:
         print(f"No PDF files found in the directory: {pdf_directory}")
