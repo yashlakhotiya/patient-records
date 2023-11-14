@@ -121,7 +121,7 @@ def get_patient_id(text):
 
 
 def get_patient_name(text):
-    patten = re.compile(r'Name:\s+(.*?)\s+')
+    patten = re.compile(r'Name:\s+(.*?)\s+Surg')
     return get_match(text, patten)
 
 
@@ -146,7 +146,7 @@ def get_date_reported(text):
 
 
 def get_surg_path(text):
-    pattern = re.compile(r'Surg.*Path #:\s+(.*?)\s+')
+    pattern = re.compile(r'Surg.*Path #:\s+(.*?)\s+Patient')
     return get_match(text, pattern)
 
 
