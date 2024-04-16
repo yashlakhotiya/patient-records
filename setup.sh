@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # Create and activate virtual environment
+# chmod +x setup.sh
+# ./setup.sh
 python3 -m venv venv
 source venv/bin/activate
 
